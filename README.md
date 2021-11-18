@@ -140,6 +140,9 @@ $ sudo systemctl restart docker
     ```sh
     # All Nodes
     $ kubectl get nods
+    $ kubectl get all -A
+    $ kubectl apply -f ./test_app/app.yaml
+    $ kubectl get po -n kube-example
     ```
 ---
 
