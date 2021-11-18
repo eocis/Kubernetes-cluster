@@ -14,6 +14,9 @@
     - RAM: 16G
     - SSD: 256G
 - Hypervisor: UTM
+- Kubernetes:
+    - Container Runtime: Docker
+    - CNI: Flannel
 
 <br>
 
@@ -59,7 +62,7 @@
         enp0s9:
         dhcp4: true
         addresses:
-                - 192.168.64.10/24  # Changeable(check DHCP)
+                - [ 192.168.64.10/24, 10.244.0.1/16 ] # VM Network & Kubernetes Network
     version: 2
     ```
 6. Edit apt repository 
@@ -114,28 +117,54 @@ $ sudo systemctl restart docker
 15. Set Master Node
     ```sh
     $ ip a  # check ip
-    $ sudo kubeadm init # Copy "kubeadm join ~~~~"
+    $ sudo kubeadm init --apiserver-advertise-address=<Master Node IP> --pod-network-cidr=<10.244.0.0/16># Copy "kubeadm join ~~~~"
     $ mkdir -p $HOME/.kube
     $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
     ```
 
-16. Set Worker Nodes
+16. Set Cluster Network(Cluster Networking Interfaces, CNI)
+    ```sh
+    $ curl -O https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml # Default Pod network: 10.244.0.0/16
+    $ kubectl apply -f kube-flannel.yml
+    ```
+
+17. Set Worker Nodes
     ```sh
     $ sudo kubeadm init
     $ scp master@192.168.64.10:.kube/config ~/.kube/config  # get config file
-    $ kubeadm join 192.168.64.10:6443 --token nznopm.t0yxwct0rfv1fw9r --discovery-token-ca-cert-hash sha256:80976183c88405785848c2182a18a8e0acccdb7552152514c721400cf8eecc9d # Copied Chapter 15 command
+    $ kubeadm join 192.168.64.10:6443 --token nznopm.t0yxwct0rfv1fw9r --discovery-token-ca-cert-hash sha256:80976183c88405785848c2182a18a8e0acccdb7552152514c721400cf8eecc9d # Copied Chapter 15 command(아래 cluster join항목 참조)
     ```
 
-17. Working Test
+18. Working Test
     ```sh
     # All Nodes
     $ kubectl get nods
+    ```
+---
+
+- Cluster Join(Worker Node)
+    ```sh
+    ## Master Node ##
+    # 발행된 Token 확인
+    $ kubeadm token list
+
+    # 토큰이 없을 시
+    $ kubeadm token create
+
+    # 토큰 Hash값 확인
+    $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+
+    ## Worker Node ##
+    # Join
+    $ kubeadm join <kubernetes api server:PORT> --token <Token value> --discovery-token-ca-cert-hash sha256:<Hash value>
     ```
 
 ---
 
 <참고>
-- https://kubernetes.io/ko/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-- https://kubernetes.io/ko/docs/setup/production-environment/container-runtimes/
-- https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver/
+- Installation: https://kubernetes.io/ko/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+- Conatiner-Runtime: https://kubernetes.io/ko/docs/setup/production-environment/container-runtimes/
+- cgroup-Driver: https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver/
+- CNI: https://kubernetes.io/ko/docs/concepts/cluster-administration/networking/
+- Flannel: https://github.com/flannel-io/flannel#flannel
