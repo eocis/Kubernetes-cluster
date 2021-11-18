@@ -24,21 +24,21 @@
     - <b>Master Node</b>(Ubuntu Server 20.04 LTS - arm64)
         - RAM: 4G
         - HDD: 40G
-        - IP: 192.168.64.10/24
+        - IP: [ 192.168.64.10/24, 10.244.0.1/16 ]
         - User: master
         - Password: master
         <br></br>
     - <b>Worker Node</b>(Ubuntu Server 20.04 LTS - arm64)
         - RAM: 2G
         - HDD: 30G
-        - IP: 192.168.64.11/24
+        - IP: [ 192.168.64.11/24, 10.244.0.2/16 ]
         - User: worker1
         - Password: worker1
         <br></br>
     - <b>Worker Node</b>(Ubuntu Server 20.04 LTS - arm64)
         - RAM: 2G
         - HDD: 30G
-        - IP: 192.168.64.12/24
+        - IP: [ 192.168.64.12/24, 10.244.0.3/16 ]
         - User: worker2
         - Password: worker2
         <br></br>
