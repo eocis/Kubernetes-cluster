@@ -141,8 +141,8 @@ $ sudo systemctl restart docker
     # All Nodes
     $ kubectl get nods
     $ kubectl get all -A
-    $ kubectl apply -f ./test_app/app.yaml
-    $ kubectl get po -n kube-example
+    $ kubectl apply -f ./test_app/app.yaml  - replicaset 2
+    $ kubectl describe <pod> -n kube-example | grep '10.244.0'
     ```
 ---
 
